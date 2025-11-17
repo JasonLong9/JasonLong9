@@ -1,0 +1,7 @@
+﻿[
+    {"name": "复习数据结构", "category": "课程", "minutes": 45, "value": 9, "focus": "high"},
+    {"name": "阅读AI论文", "category": "科研", "minutes": 60, "value": 10, "focus": "high"},
+    {"name": "篮球训练", "category": "运动", "minutes": 50, "value": 7, "focus": "medium"},
+    {"name": "写家教教案", "category": "教学", "minutes": 40, "value": 8, "focus": "medium"},
+    {"name": "整理PSP记录", "category": "总结", "minutes": 30, "value": 6, "focus": "low"}
+]
