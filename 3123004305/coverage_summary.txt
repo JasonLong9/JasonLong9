@@ -1,0 +1,3 @@
+Coverage summary via trace module
+C:\Users\James\Desktop\软工2\JasonLong9\3123004305\plagiarism_checker.py: 61/74 非空行 => 82.4% coverage
+C:\Users\James\Desktop\软工2\JasonLong9\3123004305\tests\test_plagiarism_checker.py: 65/68 非空行 => 95.6% coverage
