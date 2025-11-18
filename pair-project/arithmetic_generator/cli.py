@@ -36,14 +36,14 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if args.exercises or args.answers:
         if not args.exercises or not args.answers:
-            parser.error("判分模式需要同时提供 -e 和 -a。")
+            parser.error("grading mode requires both -e and -a")
         result = grade(args.exercises, args.answers)
         print(
-            f"判分完成：正确 {len(result.correct)} 题，错误 {len(result.wrong)} 题，结果写入 Grade.txt"
+            f"Grading finished: correct {len(result.correct)}, wrong {len(result.wrong)}, output -> Grade.txt"
         )
     else:
         if args.range_limit is None:
-            parser.error("缺少 -r/--range 参数。使用 --help 查看说明。")
+            parser.error("missing -r/--range. Use --help for details.")
         count = args.count or 20
         config = GeneratorConfig(count=count, range_limit=args.range_limit)
         generator = ProblemGenerator(config)
@@ -53,7 +53,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         answers_path = Path("Answers.txt")
         _write_lines(exercises_path, [f"{p.expression} =" for p in problems])
         _write_lines(answers_path, [p.answer for p in problems])
-        print(f"已生成 {len(problems)} 道题目：{exercises_path} / {answers_path}")
+        print(f"Generated {len(problems)} exercises -> {exercises_path} / {answers_path}")
 
     return 0
 
