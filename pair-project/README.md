@@ -6,7 +6,7 @@
 - `-r` 控制数值范围（必填），`-n` 控制题目数量，`-e/-a` 用于判分。
 - 输出 `Exercises.txt`、`Answers.txt` 和 `Grade.txt`，保证题目唯一性且一次可生成 1 万道题。
 
-> 本次提交仅包含目录结构、模块骨架和 CLI 框架；题目生成与判分逻辑将在后续提交补齐。
+> 当前已支持题目生成，判分（-e/-a）功能将在后续提交补齐。
 
 ## 目录结构
 
@@ -26,7 +26,8 @@ pair-project/
 
 ```bash
 cd pair-project
-python -m arithmetic_generator --help
+python -m arithmetic_generator -r 10 -n 20
+# 将在当前目录生成 Exercises.txt 与 Answers.txt
 ```
 
 当前命令仅显示帮助信息，后续提交会按需求输出题目与答案。
