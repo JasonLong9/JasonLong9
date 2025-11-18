@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 from fractions import Fraction
-from typing import Iterable, List, Sequence
+from typing import List, Sequence
 
 OPERATORS = {"+", "-", "*", "/"}
 PRECEDENCE = {"+": 1, "-": 1, "*": 2, "/": 2}
@@ -28,7 +28,7 @@ def _to_postfix(tokens: Sequence[str]) -> List[str]:
                 output.append(op_stack.pop())
             if not op_stack:
                 raise ValueError("Mismatched parentheses")
-            op_stack.pop()  # remove "("
+            op_stack.pop()
         else:
             output.append(token)
     while op_stack:
