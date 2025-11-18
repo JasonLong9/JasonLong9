@@ -75,5 +75,8 @@ def grade(exercises_file: str, answers_file: str, output_file: str = "Grade.txt"
 
 
 def _format_grade_line(label: str, indices: List[int]) -> str:
-    numbers = ", ".join(str(i) for i in indices)
+    if indices:
+        numbers = ", ".join(str(i) for i in indices)
+    else:
+        numbers = ""
     return f"{label}: {len(indices)} ({numbers})"
