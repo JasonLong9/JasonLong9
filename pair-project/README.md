@@ -22,7 +22,7 @@ pair-project/
 - Python 3.11+
 - 仅依赖标准库，无需额外安装
 
-## 快速尝试
+## 生成题目
 
 ```bash
 cd pair-project
@@ -30,7 +30,19 @@ python -m arithmetic_generator -r 10 -n 20
 # 将在当前目录生成 Exercises.txt 与 Answers.txt
 ```
 
-当前命令仅显示帮助信息，后续提交会按需求输出题目与答案。
+## 判分模式
+
+```bash
+python -m arithmetic_generator -e Exercises.txt -a Answers.txt
+# 在当前目录输出 Grade.txt
+```
+
+当前输入文件假设符合题目格式，程序会统计对错题号：
+
+```
+Correct: 5 (1, 3, 5, 7, 9)
+Wrong: 5 (2, 4, 6, 8, 10)
+```
 
 ## 开发规范
 
