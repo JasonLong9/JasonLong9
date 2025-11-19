@@ -1,52 +1,52 @@
-# 小学四则运算题目生成器
+# Primary Arithmetic Exercise Generator
 
-实现命令行程序，既能批量生成符合小学要求的四则运算题，也能给定题目/答案文件输出对错统计结果。
+Command-line tool to create primary-school friendly arithmetic exercises and grade submitted answers.
 
-## 功能概览
+## Features
 
-- `-n` 题目数量（默认 20，最多 10000），`-r` 数值范围上限（必填，取 [0, r)）。
-- 支持自然数与真分数，自动添加括号，保证中间结果不为负、除法结果真分数且题目唯一。
-- 自动写入 `Exercises.txt` 与 `Answers.txt`，并可通过 `-e/-a` 判题生成 `Grade.txt`。
-- 单元测试覆盖表达式求值、题目生成约束及判题流程。
+- `-r` range upper bound (required) and `-n` exercise count (default 20, max 10000).
+- Natural numbers and proper fractions, parentheses added automatically; intermediate steps avoid negatives and division results stay proper fractions; exercises are deduplicated.
+- Writes `Exercises.txt` and `Answers.txt`; grading mode with `-e/-a` produces `Grade.txt`.
+- Standard-library only; unit tests cover expression evaluation, generation constraints, and grading.
 
-## 使用方法
+## Usage
 
 ```bash
 cd pair-project
-# 生成 30 道 20 以内的题目
+# generate 30 exercises within [0, 20)
 python -m arithmetic_generator -r 20 -n 30
-# 判题
+# grade answers
 python -m arithmetic_generator -e Exercises.txt -a Answers.txt
 ```
 
-输出示例：
+Sample output:
 
 ```
 Correct: 5 (1, 3, 5, 7, 9)
 Wrong: 5 (2, 4, 6, 8, 10)
 ```
 
-## 目录结构
+## Structure
 
 ```
 pair-project/
 ├── arithmetic_generator/
-│   ├── cli.py           # 参数解析、生成/判题入口
-│   ├── config.py        # 生成配置
-│   ├── evaluator.py     # 表达式解析与求值
-│   ├── generator.py     # 题目生成、去重与约束控制
-│   └── grader.py        # 判分逻辑
-├── tests/               # unittest 覆盖关键逻辑
+│   ├── cli.py           # CLI entry for generation/grading
+│   ├── config.py        # generation config
+│   ├── evaluator.py     # expression parsing/evaluation
+│   ├── generator.py     # exercise creation and uniqueness
+│   └── grader.py        # grading logic
+├── tests/               # unittest-based coverage
 └── README.md
 ```
 
-## 测试
+## Tests
 
-在 `pair-project` 目录执行：
+From `pair-project`:
 
 ```bash
 python -m unittest
 ```
 
-测试会跳转至临时目录校验题目生成、表达式求值与判题结果，无需额外依赖。
+No extra dependencies are required.
 
