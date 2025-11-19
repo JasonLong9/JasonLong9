@@ -19,83 +19,48 @@ tests/
 
 | 模块 | 类/函数 | 说明 |
 | --- | --- | --- |
-| `config.py` | `GeneratorConfig` | 控制题目数量、范围、操作符等 |
+| `config.py` | `GeneratorConfig` | 控制题目数量、数值范围、操作符集合等 |
 | `models.py` | `Problem` | 封装题目表达式与答案 |
-|  | `ExpressionNode` | 构建随机表达式树 |
-| `generator.py` | `ProblemGenerator.generate()` | 生成题目，确保唯一性 |
-|  | `_build_tree()` | 随机构造操作符数量为 `max_operators` 的树 |
-|  | `_evaluate()` | 计算树值，确保减法非负、除法结果真分数 |
-|  | `_canonical()` | 输出用于去重的 canonical 字符串 |
-| `evaluator.py` | `eval_expression()` | 用于 grader 的表达式求值，支持分数 |
-| `grader.py` | `grade()` | 判分，输出 `Grade.txt` |
-| `cli.py` | `main()` | 解析参数，选择生成或判分模式 |
+|  | `ExpressionNode` | 生成器构建的表达式树节点 |
+| `generator.py` | `ProblemGenerator.generate()` | 生成题目、保证唯一性 |
+|  | `_build_tree()` | 随机决定操作符个数并生成表达式树 |
+|  | `_evaluate()` | 计算树的值，确保非负或真分数等约束 |
+|  | `_canonical()` | 用于去重的 canonical 表示 |
+| `evaluator.py` | `eval_expression()` | 评分时对题目进行求值 |
+| `grader.py` | `grade()` | 读取题目/答案文件并统计正确率 |
+| `cli.py` | `main()` | 解析命令行，协调生成与评分 |
 
-## 2. 模块关系
+## 2. 模块关系（文字描述）
 
-````mermaid
-graph TD
-    subgraph CLI
-        CLI[cli.py main]
-    end
-    subgraph Core
-        CFG[GeneratorConfig]
-        GEN[ProblemGenerator]
-        EVAL[eval_expression]
-        GRADER[grade]
-    end
-    subgraph Models
-        PROB[Problem]
-        NODE[ExpressionNode]
-    end
+- **CLI 层（cli.py）**：解析命令行参数，构建 `GeneratorConfig`，根据参数决定调用 `ProblemGenerator` 还是 `grade()`。
+- **生成器**：`ProblemGenerator` 使用 `GeneratorConfig` 控制生成策略；内部依赖 `ExpressionNode` 构建随机表达式树，最终产出 `Problem`。
+- **评分器**：`grade()` 读取题目/答案文件，借助 `eval_expression()` 计算标准答案并比较。
+- **模型**：`Problem`、`ExpressionNode` 由生成器产生，在评分环节仅需 `Problem` 的序列化形式。
+- **测试层**：`tests/test_*.py` 导入上述模块，验证约束与边界条件。
 
-    CLI --> CFG
-    CLI --> GEN
-    CLI --> GRADER
-    GEN --> PROB
-    GEN --> NODE
-    GEN --> CFG
-    GRADER --> EVAL
-````
-
-## 3. 关键函数流程
+## 3. 关键函数流程（文字描述）
 
 ### 3.1 `ProblemGenerator.generate()`
 
-````mermaid
-flowchart TD
-    A[初始化 seen/结果集合] --> B{题目数 < count 且 attempts < limit?}
-    B -- 否 --> Z[返回题目列表/若不足抛异常]
-    B -- 是 --> C[随机确定 ops_count]
-    C --> D[构建表达式树 `_build_tree`]
-    D --> E{_evaluate 能得到合法值?}
-    E -- 否 --> B
-    E -- 是 --> F[计算 canonical 字符串]
-    F --> G{已在 seen?}
-    G -- 是 --> B
-    G -- 否 --> H[格式化表达式/答案，append Problem]
-    H --> I[seen.add(canonical)]
-    I --> B
-````
+1. 初始化结果列表与 `seen` 集合，设置尝试次数上限。
+2. 在“题目数量小于 `count` 且尝试次数未达上限”时循环：
+   - 随机确定操作符数量 `ops_count`；
+   - 调用 `_build_tree()` 构建表达式树；
+   - `_evaluate()` 计算树值，若出现负数、除零或非真分数则放弃本次迭代；
+   - 生成 canonical 字符串，若已存在于 `seen`，则继续下一次迭代；
+   - 将格式化后的表达式与答案存入结果，并把 canonical 加入 `seen`。
+3. 若生成数量已满足 `count`，返回结果；若尝试上限耗尽仍不足，则抛出异常提醒用户调整参数。
 
 ### 3.2 `grade()`
 
-````mermaid
-flowchart TD
-    A[读取 Exercises/Answers] --> B{数量相等?}
-    B -- 否 --> Z[抛异常]
-    B -- 是 --> C[for idx, line in pairs]
-    C --> D[normalize 表达式/答案]
-    D --> E[expected = eval_expression(expr)]
-    E --> F[actual = parse_fraction(answer)]
-    F --> G{expected == actual?}
-    G -- 是 --> H[记录 idx 到 correct]
-    G -- 否 --> I[记录 idx 到 wrong]
-    H --> J[继续循环]
-    I --> J
-    J --> K[写入 Grade.txt，返回结果]
-````
+1. 读取题目/答案文件，去掉空行，对比题目数量，数量不一致直接报错。
+2. 对每行题目：
+   - 规范化表达式（去序号、去等号），并调用 `eval_expression()` 计算标准答案；
+   - 解析输入答案，转换为分数后与标准答案比较；
+   - 根据结果将题号写入 `correct` 或 `wrong` 列表。
+3. 写入 `Grade.txt`（`Correct: N (...)` 和 `Wrong: M (...)`），同时返回 `GradeResult` 供 CLI 输出统计信息。
 
 ## 4. 其他说明
 
-- **单元测试**：`tests/test_generator.py` 验证题目约束、`test_evaluator.py` 验证表达式求值、`test_grader.py` 验证评分输出。
-- **流程图可选**：上述流程图展示了核心函数的步骤，若未来加入更复杂的界面/交互流程，可再补充更细的流程图。
+- **测试**：`tests/test_generator.py`、`test_evaluator.py`、`test_grader.py` 分别校验生成、求值、评分逻辑。
+- **流程补充**：由于核心流程较为直观，此处使用文字描述；若后续拓展更复杂的 UI/交互，可再补充图形化流程图。
